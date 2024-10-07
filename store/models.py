@@ -10,6 +10,16 @@ class Collection(models.Model):
     title = models.CharField(max_length=255)
      
 class Product(models.Model):
+    title = models.CharField(max_length=255)
+    slug = models.SlugField() # slug makes search engine more see to the title
+    description = models.TextField()
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    inventory = models.IntegerField()
+    last_update = models.DateTimeField(auto_now=True) # set date every time the object is saved
+    collection = models.ForeignKey(Collection, on_delete=models.PROTECT) # if we delete our collection, product shouldn't be deleted
+    promotions = models.ManyToManyField(Promotion) # 
+
+class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
     MEMBERSHIP_SILVER = 'S'
     MEMBERSHIP_GOLD = 'G'
@@ -20,22 +30,13 @@ class Product(models.Model):
         (MEMBERSHIP_GOLD, 'GOLD'),
     ]
 
-    title = models.CharField(max_length=255)
-    slug = models.SlugField() # slug makes search engine more see to the title
-    description = models.TextField()
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-    inventory = models.IntegerField()
-    last_update = models.DateTimeField(auto_now=True) # set date every time the object is saved
-    membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
-    collection = models.ForeignKey(Collection, on_delete=models.PROTECT) # if we delete our collection, product shouldn't be deleted
-    promotions = models.ManyToManyField(Promotion) # 
-
-class Customer(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=255)
     birth_date = models.DateField(null=True) # we use DateField because we don't care the time of birth
+    membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
+
 
 class Order(models.Model):
     PAYMENT_STATUS_PENDING = 'P'
