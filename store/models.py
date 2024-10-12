@@ -4,7 +4,9 @@ from django.db import models
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
-    # don't need to add products = models.ManyToManyField(Product), one class is OK. Django will automatically create reverse relationship
+    # don't need to add products = models.ManyToManyField(Product).
+    # Django will automatically create reverse relationship as 
+    # product_set
 
 class Collection(models.Model):
     title = models.CharField(max_length=255)
@@ -51,6 +53,7 @@ class Order(models.Model):
     placed_at = models.DateTimeField(auto_now_add=True) # set date at the time of object is created
     payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT) # if the customer is deleted, we shouldn't delete the order because order represents our sales
+    # orderitem_set
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)

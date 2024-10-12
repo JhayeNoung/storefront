@@ -6,11 +6,11 @@
         <h1>Hello World</h1>
         {% endif %}
 
-        <p>{{product_obj}}</p>
+        <p>{{query_set}}</p>
 
         <ul>
-        {% for product in products %}
-            <li>{{ product}}</li>  <!-- Corrected li tag -->
+        {% for customer in query_set %}
+            <li>{{ customer.first_name }}</li>  <!-- Corrected li tag -->
         {% endfor %}
         </ul>
     </body>
