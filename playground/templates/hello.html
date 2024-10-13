@@ -9,8 +9,8 @@
         <p>{{query_set}}</p>
 
         <ul>
-        {% for customer in query_set %}
-            <li>{{ customer.first_name }}</li>  <!-- Corrected li tag -->
+        {% for tag in query_set %}
+            <li>{{ tag }}</li>  <!-- Corrected li tag -->
         {% endfor %}
         </ul>
     </body>
