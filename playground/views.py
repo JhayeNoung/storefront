@@ -7,9 +7,9 @@ from tags.models import TaggedItem, TaggedItemManager
 
 
 # Create your views here.
-def say_hello(request):
+def demo(request):
     query_set = Product.objects.all()
     list(query_set)
     list(query_set)
     # product_obj = Product.objects.prefetch_related('promotions')
-    return render(request, 'hello.html', {'name': 'jhaye', 'query_set':query_set})
+    return render(request, 'demo.html', {'name': 'jhaye', 'query_set':query_set})
