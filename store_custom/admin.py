@@ -11,7 +11,7 @@ class TagInline(GenericTabularInline):
     model = TaggedItem
     extra = 1
     
-class CustomProductAdmin(ProductAdmin):
+class CustomProductAdmin(ProductAdmin): # extend ProductAdmin from store app
     inlines = [TagInline]
 
 admin.site.unregister(Product)
