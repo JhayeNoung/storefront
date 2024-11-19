@@ -19,5 +19,18 @@ class ProductViewSet(ModelViewSet):
     
 
 class ReviewViewSet(ModelViewSet):
-    serializer_class = ReviewModelSerializer
     queryset = Review.objects.all()
+    serializer_class = ReviewModelSerializer
+
+    def get_serializer_context(self):
+      """
+      Extra context provided to the serializer class.
+      """
+      return {
+          'product_id': self.kwargs['product_pk']
+      }
+    
+      """
+      In Django, self.kwargs is a dictionary that contains all the keyword arguments captured from the URL pattern.
+	    These keyword arguments are defined in the URL configuration when using path converters, such as <int:product_pk>.
+      """
