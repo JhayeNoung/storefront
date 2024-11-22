@@ -5,7 +5,7 @@ from django.db.models.query import QuerySet
 from django.utils.html import format_html
 from django.urls import reverse
 from urllib.parse import urlencode
-from .models import Product, Collection, Customer, Order, OrderItem
+from .models import Product, Collection, Customer, Order, OrderItem, Cart, CartItem
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -100,3 +100,17 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'placed_at', 'customer')
     list_select_related = ['customer']
  
+
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
+    
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created_at')
+    inlines = [CartItemInline]
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'cart', 'product', 'quantity')

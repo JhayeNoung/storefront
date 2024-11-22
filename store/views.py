@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import status
-from .models import Product, Review
-from .serializers import ProductSerializer, ReviewModelSerializer
+from .models import Product, Review, Cart, CartItem
+from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
 
@@ -45,3 +45,12 @@ class ReviewViewSet(ModelViewSet):
           # product_pk is domain_pk
 
       }
+    
+
+class CartViewSet(ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer

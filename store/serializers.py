@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Review
+from .models import Product, Review, Cart, CartItem
 
 class ReviewModelSerializer(serializers.ModelSerializer):
   class Meta:
@@ -18,6 +18,19 @@ class ProductSerializer(serializers.ModelSerializer):
     model = Product
     fields = ['id', 'title', 'price', 'description', 'collection']
 
+
+class CartItemSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = CartItem
+    fields = ['id', 'product', 'quantity']
+
+class CartSerializer(serializers.ModelSerializer):
+  id = serializers.UUIDField(read_only=True)
+  items = CartItemSerializer
+
+  class Meta:
+    model = Cart
+    fields = ['id', 'created_at', 'items']
 
 
     
