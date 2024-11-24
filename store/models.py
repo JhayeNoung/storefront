@@ -96,11 +96,12 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items') # if  the cart is deleted, all the cartitem is deleted
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE) # many(CartItem) -> one(Product)
     quantity = models.PositiveSmallIntegerField()
 
     class Meta:
         unique_together = [['cart', 'product']] # a cart with no duplicate product
+
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')

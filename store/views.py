@@ -11,8 +11,10 @@ from .paginations import ProductPagination
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.select_related('collection').all()
+    queryset = Product.objects.select_related('collection').all() # many(product) -> one(collection)
     serializer_class = ProductSerializer
+
+    # filtering
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_class = ProductFilter
     pagination_class = ProductPagination
@@ -48,9 +50,9 @@ class ReviewViewSet(ModelViewSet):
     
 
 class CartViewSet(ModelViewSet):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.prefetch_related('cartitem').all()
     serializer_class = CartSerializer
-
+  
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
