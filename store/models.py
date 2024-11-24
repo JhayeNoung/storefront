@@ -54,7 +54,8 @@ class Customer(models.Model):
     phone = models.CharField(max_length=255)
     birth_date = models.DateField(null=True) # we use DateField because we don't care the time of birth
     membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
-
+    #address_set
+    
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
     
@@ -95,7 +96,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items') # if  the cart is deleted, all the cartitem is deleted
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cartitem') # if  the cart is deleted, all the cartitem is deleted
     product = models.ForeignKey(Product, on_delete=models.CASCADE) # many(CartItem) -> one(Product)
     quantity = models.PositiveSmallIntegerField()
 

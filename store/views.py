@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import status
 from .models import Product, Review, Cart, CartItem
-from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer
+from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
 
@@ -25,6 +25,7 @@ class ProductViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'request': self.request}
 
+    # custom DELETE method for instance.orderitem_set.count() > 0
     def destroy(self, request, pk):
         instance = get_object_or_404(Product, pk=pk)
         if instance.orderitem_set.count() > 0:
@@ -37,15 +38,13 @@ class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewModelSerializer
 
+    # get product_pk from url and give to serializer.context['product_id'] ( /domains/{domain_pk}/nameservers/ )
     def get_serializer_context(self):
       """
       Extra context provided to the serializer class.
       """
       return {
           'product_id': self.kwargs['product_pk'] 
-          # /domains/{domain_pk}/nameservers/ <- Nameservers of domain from {domain_pk}
-          # product_pk is domain_pk
-
       }
     
 
@@ -53,6 +52,18 @@ class CartViewSet(ModelViewSet):
     queryset = Cart.objects.prefetch_related('cartitem').all()
     serializer_class = CartSerializer
   
+
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
+
+    # for POST method choose AddCartItemSerializer, for GET and ATNOTHER choose CartItemSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AddCartItemSerializer
+        return CartItemSerializer
+
+    # get cart_pk from url and give to serializer.context['cart_id'] ( /domains/{domain_pk}/nameservers/ )
+    def get_serializer_context(self):
+        return {
+            'cart_id': self.kwargs['cart_pk']
+        }
