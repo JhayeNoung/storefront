@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import status
 from .models import Product, Review, Cart, CartItem
-from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer
+from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
 
@@ -56,10 +56,16 @@ class CartViewSet(ModelViewSet):
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
 
+    # we will not allow PUT method
+    # http_method_names is the base class View's attribute
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
     # for POST method choose AddCartItemSerializer, for GET and ATNOTHER choose CartItemSerializer
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return AddCartItemSerializer
+        elif self.request.method == 'PATCH':
+            return UpdateItemSerializer
         return CartItemSerializer
 
     # get cart_pk from url and give to serializer.context['cart_id'] ( /domains/{domain_pk}/nameservers/ )

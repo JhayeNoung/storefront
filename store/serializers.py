@@ -20,6 +20,13 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'price', 'description', 'inventory', 'collection_id']
 
 
+# for PATCH method
+class UpdateItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['quantity']
+
+
 # for POST method
 class AddCartItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()
