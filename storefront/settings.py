@@ -39,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'debug_toolbar',
     'store',
     'tags',
-    'store_custom',
     'playground',
     'likes',
-    'debug_toolbar',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -91,7 +91,7 @@ INTERNAL_IPS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'storefront',
+        'NAME': 'storefront2',
         'HOST': 'localhost',
         'USER': 'root',
         'PASSWORD': 'MySQL123@',
@@ -149,3 +149,5 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'COERCE_DECIMAL_TO_STRING' : False
 }
+
+AUTH_USER_MODEL = "core.User"

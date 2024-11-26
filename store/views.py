@@ -57,7 +57,7 @@ class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
 
     # we will not allow PUT method
-    # http_method_names is the base class View's attribute
+    # http_method_names attribute is from the base class of Django, View
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     # for POST method choose AddCartItemSerializer, for GET and ATNOTHER choose CartItemSerializer
