@@ -1,11 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework import status
-from .models import Product, Review, Cart, CartItem
-from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status, mixins
+from .models import Product, Review, Cart, CartItem, Customer
+from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer, CustomerSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
 
@@ -73,3 +75,38 @@ class CartItemViewSet(ModelViewSet):
         return {
             'cart_id': self.kwargs['cart_pk']
         }
+    
+
+# customer shouldn't get all customer list, so RetrieveModelMixin is being exclude
+class CustomerViewSet(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,GenericViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.request.method == "GET":
+            return [AllowAny()] # AllowAny() return True
+        return [IsAuthenticated()]
+    
+    
+    '''
+    adding extra action 'me', REST framework will provide routes /me/
+
+    https://www.django-rest-framework.org/api-guide/viewsets/#marking-extra-actions-for-routing
+    '''
+    @action(detail=False, methods=['GET', 'PUT'])
+    def me(self, request):
+        '''must give JWT token, then request object will inclued user object'''
+        # extract tuple
+        (customer, created) = Customer.objects.get_or_create(user_id=request.user.id)# get_or_create returns a tuple of (object, created), where object is the retrieved or created object and created is a boolean
+        if request.method == 'GET':
+            serializer = CustomerSerializer(customer)
+            return Response(serializer.data)  
+        if request.method == 'PUT':
+            # Update the existing customer object
+            serializer = CustomerSerializer(customer, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

@@ -3,4 +3,6 @@ from django.db import models
 
 # Create your models here.
 class User(AbstractUser): # extending base User Class
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True) # make email unique by manual
+
+
