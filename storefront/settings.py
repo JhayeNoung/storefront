@@ -152,7 +152,11 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'COERCE_DECIMAL_TO_STRING' : False
+    'COERCE_DECIMAL_TO_STRING' : False,
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'store.permissions.IsAdminOrReadOnly',
+    #     'store.permissions.ViewCustomerHistoryPermission',
+    # ]
 }
 
 AUTH_USER_MODEL = "core.User"
@@ -167,6 +171,6 @@ DJOSER = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
 }

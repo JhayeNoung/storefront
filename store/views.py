@@ -4,12 +4,13 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status, mixins
 from .models import Product, Review, Cart, CartItem, Customer
 from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer, CustomerSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
+from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
@@ -23,6 +24,8 @@ class ProductViewSet(ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['title', 'unit_price ']
 
+    # permission
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -76,27 +79,29 @@ class CartItemViewSet(ModelViewSet):
             'cart_id': self.kwargs['cart_pk']
         }
     
-
-# customer shouldn't get all customer list, so RetrieveModelMixin is being exclude
-class CustomerViewSet(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,GenericViewSet):
+class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    permission_classes = [IsAdminUser]
 
-    def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
-        if self.request.method == "GET":
-            return [AllowAny()] # AllowAny() return True
-        return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     """
+    #     Instantiates and returns the list of permissions that this view requires.
+    #     """
+    #     if self.request.method == "GET":
+    #         return [AllowAny()] # AllowAny() return True
+    #     return [IsAuthenticated()]
     
+    @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
+    def history(self, request, pk):
+        return Response('Here is the history')
     
     '''
     adding extra action 'me', REST framework will provide routes /me/
 
     https://www.django-rest-framework.org/api-guide/viewsets/#marking-extra-actions-for-routing
     '''
-    @action(detail=False, methods=['GET', 'PUT'])
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
         '''must give JWT token, then request object will inclued user object'''
         # extract tuple

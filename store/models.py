@@ -71,7 +71,19 @@ class Customer(models.Model):
     
     class Meta:
         ordering = ['user__first_name']
-        permissions = [("can_cancel_order", "Cancel Order")]
+        permissions = [
+            ("can_cancel_order", "Cancel Order"),
+            ("view_history", "Can read history"),
+        ]
+    '''
+    This is a list or tuple of 2-tuples in the format (permission_code, human_readable_permission_name).
+
+    permissions = [
+        (permission_code, human_readable_permission_name),
+    ]
+
+    (https://docs.djangoproject.com/en/5.1/ref/models/options/#permissions)
+    '''
 
 
 class Order(models.Model):
