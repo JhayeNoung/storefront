@@ -107,7 +107,7 @@ class CustomerViewSet(ModelViewSet):
     def me(self, request):
         '''must give JWT token, then request object will inclued user object'''
         # extract tuple
-        (customer, created) = Customer.objects.get_or_create(user_id=request.user.id)# get_or_create returns a tuple of (object, created), where object is the retrieved or created object and created is a boolean
+        customer= Customer.objects.get(user_id=request.user.id)
         if request.method == 'GET':
             serializer = CustomerSerializer(customer)
             return Response(serializer.data)  
@@ -149,7 +149,7 @@ class OrderViewSet(ModelViewSet):
         if user.is_staff:
             return Order.objects.all()
         
-        (customer_id, created) = Customer.objects.only('id').get_or_create(user_id=self.request.user.id) # find customer profile with the user_id
+        customer_id = Customer.objects.only('id').get(user_id=self.request.user.id) # find customer profile with the user_id
         return Order.objects.filter(customer_id=customer_id) # get order for this customer profile
 
 

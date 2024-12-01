@@ -133,7 +133,7 @@ class CreateOrderSerializer(serializers.Serializer):
             cart_id = self.validated_data['cart_id']
 
             '''create new order of the authenticated customer profile'''
-            (customer, created) = Customer.objects.get_or_create(user_id=self.context['user_id']) # find customer profile with the user_id
+            customer= Customer.objects.get(user_id=self.context['user_id']) # find customer profile with the user_id
             order = Order.objects.create(customer=customer) # create order for this customer profile, return object
 
             '''create order items from the provided cart_id'''
