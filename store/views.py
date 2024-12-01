@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status, mixins
 from .models import Product, Review, Cart, CartItem, Customer, Order, OrderItem
-from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer, CustomerSerializer, OrderSerializer, OrderItemSerializer
+from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer, CustomerSerializer, OrderSerializer, OrderItemSerializer, CreateOrderSerializer, UpdateOrderSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
 from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
@@ -121,8 +121,27 @@ class CustomerViewSet(ModelViewSet):
 
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateOrderSerializer(data=request.data, context={'user_id': self.request.user.id})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateOrderSerializer
+        elif self.request.method == 'PATCH':
+            return UpdateOrderSerializer
+        return OrderSerializer
+    
     # if user is admin get all, if not, only its authenticated user
     def get_queryset(self):
         user = self.request.user
@@ -137,3 +156,5 @@ class OrderViewSet(ModelViewSet):
 class OrderItemViewSet(ModelViewSet):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
+
+

@@ -21,14 +21,10 @@ product_router.register('review', views.ReviewViewSet, basename='review')
 cart_router = routers.NestedSimpleRouter(router, 'cart', lookup='cart')
 cart_router.register('cart-items', views.CartItemViewSet, basename='cartitems')
 
-order_router = routers.NestedSimpleRouter(router, 'orders', lookup='orders')
-order_router.register('order-items', views.CartItemViewSet, basename='orderitems')
-
 urlpatterns = [
   path('', include(router.urls)),
   path('', include(product_router.urls)),
   path('', include(cart_router.urls)),
-  path('', include(order_router.urls)),
 ]
 
 # 'basename' is optional. Needed only if the same viewset is registered more than once

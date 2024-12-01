@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from .models import Product, Review, Cart, CartItem, Collection, Customer, Order, OrderItem
 
@@ -113,4 +114,73 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'orderitems', 'placed_at', 'payment_status', 'customer_id']
+        fields = ['id', 'placed_at', 'payment_status', 'customer_id', 'orderitems',]
+
+
+'''give the cart_id of the user, and it will create OrderItem in the order, and delete the cart'''
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.UUIDField()
+
+    def validate_cart_id(self,cart_id):
+        if not Cart.objects.filter(pk=cart_id).exists():
+            raise serializers.ValidationError('No cart with the given id was found .')
+        if CartItem.objects.filter(cart_id=cart_id).count() == 0:
+            raise serializers.ValidationError('The cart is empty.')
+        return cart_id
+            
+    def save(self, **kwargs):
+        with transaction.atomic():
+            cart_id = self.validated_data['cart_id']
+
+            '''create new order of the authenticated customer profile'''
+            (customer, created) = Customer.objects.get_or_create(user_id=self.context['user_id']) # find customer profile with the user_id
+            order = Order.objects.create(customer=customer) # create order for this customer profile, return object
+
+            '''create order items from the provided cart_id'''
+            # get cart items from provided cart_id
+            cart_items = CartItem.objects.filter(cart_id=cart_id) # return queryset
+
+            # get cart item data and give to order item
+            order_items = [
+                OrderItem(
+                    order = order,
+                    product = item.product,
+                    unit_price = item.product.unit_price,
+                    quantity = item.quantity,
+                ) for item in cart_items
+            ]
+
+            # creat order item
+            OrderItem.objects.bulk_create(order_items)
+
+            # delete the cart
+            Cart.objects.filter(pk=cart_id).delete()
+
+            return order
+        
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['payment_status']
+'''
+store_cart
+id created_at
+
+store_cartitem
+id quantity cart_id product_id
+
+store_orderitem
+id quantity unit_price product_id order_id
+
+
+This method inserts the provided list of objects into the database in an efficient manner 
+(generally only 1 query, no matter how many objects there are), and returns created objects as a list, 
+in the same order as provided:
+>>> objs = Entry.objects.bulk_create(
+...     [
+...         Entry(headline="This is a test"),
+...         Entry(headline="This is only a test"),
+...     ]
+... )
+'''
