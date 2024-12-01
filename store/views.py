@@ -56,6 +56,8 @@ class ReviewViewSet(ModelViewSet):
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.prefetch_related('cartitem').all()
     serializer_class = CartSerializer
+
+    http_method_names = ['get', 'post', 'delete']
   
 
 class CartItemViewSet(ModelViewSet):

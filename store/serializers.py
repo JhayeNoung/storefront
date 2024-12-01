@@ -11,6 +11,13 @@ class ReviewModelSerializer(serializers.ModelSerializer):
         return Review.objects.create(product_id=product_id, **validated_data)
     
 
+class SimpleProductSerializer(serializers.ModelSerializer):
+    price = serializers.DecimalField(max_digits=6, decimal_places=2, source='unit_price') # source to 'unit_price' coz name change as 'price'
+
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'price']
+
 class ProductSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(max_digits=6, decimal_places=2, source='unit_price') # source to 'unit_price' coz name change as 'price'
     collection_id = serializers.PrimaryKeyRelatedField(queryset=Collection.objects.all(), source='collection')  # Accept only collection ID
@@ -63,7 +70,7 @@ class AddCartItemSerializer(serializers.ModelSerializer):
 
 # for GET and ALL method
 class CartItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
+    product = SimpleProductSerializer()
     total_price = serializers.SerializerMethodField(method_name="get_total_price")
 
     class Meta:
@@ -76,7 +83,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    cartitem = CartItemSerializer(many=True) # many(cartitem) -> one(cart)
+    cartitem = CartItemSerializer(many=True, read_only=True) # many(cartitem) -> one(cart)
     total_price = serializers.SerializerMethodField()
 
     class Meta:
