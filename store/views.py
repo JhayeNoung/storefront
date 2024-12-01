@@ -6,8 +6,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import status, mixins
-from .models import Product, Review, Cart, CartItem, Customer
-from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer, CustomerSerializer
+from .models import Product, Review, Cart, CartItem, Customer, Order, OrderItem
+from .serializers import ProductSerializer, ReviewModelSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateItemSerializer, CustomerSerializer, OrderSerializer, OrderItemSerializer
 from .filters import ProductFilter
 from .paginations import ProductPagination
 from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
@@ -82,7 +82,7 @@ class CartItemViewSet(ModelViewSet):
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
     # def get_permissions(self):
     #     """
@@ -115,3 +115,23 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    # if user is admin get all, if not, only its authenticated user
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_staff:
+            return Order.objects.all()
+        
+        (customer_id, created) = Customer.objects.only('id').get_or_create(user_id=self.request.user.id) # find customer profile with the user_id
+        return Order.objects.filter(customer_id=customer_id) # get order for this customer profile
+
+
+class OrderItemViewSet(ModelViewSet):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer

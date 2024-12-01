@@ -105,7 +105,7 @@ class Order(models.Model):
         ordering = ['id']
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='orderitems')
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField() # positive small interger field prevents giving negative value
     unit_price = models.DecimalField(max_digits=6, decimal_places=2, null=True) # product already has price, but price can change, so it should have the price at the time of order
