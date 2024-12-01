@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
+from .signals import order_created
 from .models import Product, Review, Cart, CartItem, Collection, Customer, Order, OrderItem
 
 class ReviewModelSerializer(serializers.ModelSerializer):
@@ -155,6 +156,8 @@ class CreateOrderSerializer(serializers.Serializer):
 
             # delete the cart
             Cart.objects.filter(pk=cart_id).delete()
+
+            order_created.send_robust(self.__class__, order=order)
 
             return order
         
